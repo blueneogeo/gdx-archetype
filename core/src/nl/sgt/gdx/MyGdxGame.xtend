@@ -1,10 +1,11 @@
-package nl.sgt.gdx;
+package nl.sgt.gdx
 
-import com.badlogic.gdx.ApplicationAdapter;
-import static com.badlogic.gdx.Gdx.*;
+import com.badlogic.gdx.ApplicationAdapter
+import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
+
+import static com.badlogic.gdx.Gdx.*
 import static com.badlogic.gdx.graphics.GL20.*
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 class MyGdxGame extends ApplicationAdapter {
 

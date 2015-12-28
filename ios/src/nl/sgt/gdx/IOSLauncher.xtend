@@ -1,4 +1,4 @@
-package nl.sgt.gdx;
+package nl.sgt.gdx
 
 import com.badlogic.gdx.backends.iosrobovm.IOSApplication
 import com.badlogic.gdx.backends.iosrobovm.IOSApplicationConfiguration

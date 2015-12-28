@@ -1,4 +1,4 @@
-package nl.sgt.gdx;
+package nl.sgt.gdx
 
 import android.os.Bundle
 import com.badlogic.gdx.backends.android.AndroidApplication
