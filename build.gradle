@@ -6,20 +6,24 @@ buildscript {
     }
     dependencies {
         classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.6'
-        classpath 'com.android.tools.build:gradle:1.2.3'
+        // classpath 'com.android.tools.build:gradle:1.2.3'
+        classpath 'com.android.tools.build:gradle:2.0.0-alpha2'
         classpath 'org.robovm:robovm-gradle-plugin:1.12.0'
         classpath "org.xtext:xtext-gradle-plugin:1.0.1"
+        // classpath 'org.xtext:xtext-android-gradle-plugin:1.0.0-RC1'
         classpath "org.xtext:xtext-android-gradle-plugin:1.0.1"
+        classpath 'com.github.ksoichiro:gradle-eclipse-aar-plugin:0.1.4'
     }
 }
 
 allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
-
+    
     version = appVersion
 
     repositories {
+        jcenter()
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
@@ -29,6 +33,9 @@ allprojects {
 project(":desktop") {
     apply plugin: "org.xtext.xtend"
 
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+
     dependencies {
         compile project(":core")
         compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
@@ -37,23 +44,78 @@ project(":desktop") {
 }
 
 project(":android") {
-    apply plugin: "android"
-    apply plugin: "org.xtext.android.xtend"
+    apply plugin: 'com.android.application'
+    apply plugin: 'com.github.ksoichiro.eclipse.aar'
+    apply plugin: 'org.xtext.android.xtend'
+
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
 
     configurations { natives }
 
     dependencies {
         compile project(":core")
+        compile 'com.android.support:design:23.1.0'
+        compile "com.github.tobykurien:xtendroid:$xtendroidVersion"
         compile "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
         natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi"
         natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
         natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
     }
+    
+    eclipseAar {
+        androidTarget = 'android-21'
+        aarDependenciesDir = 'aarDependencies'
+    }
+
+    tasks.eclipse.dependsOn tasks.cleanEclipse
+    tasks.eclipse.dependsOn tasks.generateEclipseDependencies
+   
+    android {
+        buildToolsVersion androidBuildToolsVersion
+        compileSdkVersion androidCompileSdkVersion.toInteger()
+        sourceSets {
+            main {
+                manifest.srcFile 'AndroidManifest.xml'
+                java.srcDirs = ['src']
+                aidl.srcDirs = ['src']
+                renderscript.srcDirs = ['src']
+                res.srcDirs = ['res']
+                assets.srcDirs = ['assets']
+                jniLibs.srcDirs = ['libs']
+            }
+    
+            instrumentTest.setRoot('tests')
+        }
+        defaultConfig {
+            applicationId appId
+            minSdkVersion androidMinSdkVersion.toInteger()
+            targetSdkVersion androidTargetSdkVersion.toInteger()
+        }
+        buildTypes {
+            release {
+                minifyEnabled false
+                proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            }
+             debug {
+                debuggable true
+            }
+        }
+        dexOptions {
+            preDexLibraries = false // prevent "multiple dex files define..." error
+        }
+        packagingOptions {
+            exclude 'LICENSE.txt'
+        }
+    }    
 }
 
 project(":ios") {
     apply plugin: "org.xtext.xtend"
     apply plugin: "robovm"
+
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
 
     dependencies {
         compile project(":core")
@@ -68,6 +130,9 @@ project(":html") {
     apply plugin: "gwt"
     apply plugin: "war"
 
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+
     dependencies {
         compile project(":core")
         compile "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
@@ -78,6 +143,9 @@ project(":html") {
 
 project(":core") {
     apply plugin: "org.xtext.xtend"
+
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
 
     dependencies {
         compile "org.eclipse.xtend:org.eclipse.xtend.lib:$xtendLibVersion"
